@@ -1,5 +1,6 @@
 # Frigate - Realtime Object Detection for RTSP Cameras
-**Note:** This version requires the use of a [Google Coral USB Accelerator](https://coral.withgoogle.com/products/accelerator/)
+**Note:** This version requires the use of a [Google Coral USB Accelerator](https://coral.withgoogle.com/products/accelerator/)  
+**Note2:** This version is ported from the Docker container version.  This setup is configured to run on Arch, using the latest libraries.  
 
 Uses OpenCV and Tensorflow to perform realtime object detection locally for RTSP cameras. Designed for integration with HomeAssistant or others via MQTT.
 
@@ -16,41 +17,33 @@ Uses OpenCV and Tensorflow to perform realtime object detection locally for RTSP
 You see multiple bounding boxes because it draws bounding boxes from all frames in the past 1 second where a person was detected. Not all of the bounding boxes were from the current frame.
 [![](http://img.youtube.com/vi/nqHbCtyo4dY/0.jpg)](http://www.youtube.com/watch?v=nqHbCtyo4dY "Frigate")
 
-## Getting Started
-Build the container with
-```
-docker build -t frigate .
-```
+## Getting Started  
+yay -S python3 \  
+pip \  
+protobuf \  
+opencv \  
+edgetpu
 
-The `mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite` model is included and used by default. You can use your own model and labels by mounting files in the container at `/frozen_inference_graph.pb` and `/label_map.pbtext`. Models must be compatible with the Coral according to [this](https://coral.withgoogle.com/models/).
+pip install -U pip \  
+numpy \  
+pillow \  
+matplotlib \  
+notebook \  
+Flask \  
+imutils \  
+paho-mqtt \  
+PyYAML \  
+ffmpeg
 
-Run the container with
-```
-docker run --rm \
---privileged \
--v /dev/bus/usb:/dev/bus/usb \
--v <path_to_config_dir>:/config:ro \
--p 5000:5000 \
--e RTSP_PASSWORD='password' \
-frigate:latest
-```
-
-Example docker-compose:
-```
-  frigate:
-    container_name: frigate
-    restart: unless-stopped
-    privileged: true
-    image: frigate:latest
-    volumes:
-      - /dev/bus/usb:/dev/bus/usb
-      - <path_to_config>:/config
-    ports:
-      - "5000:5000"
-    environment:
-      RTSP_PASSWORD: "password"
-```
-
+GIT_SSL_NO_VERIFY=true sudo git clone -q https://github.com/tensorflow/models /usr/local/lib/python3.5/dist-packages/tensorflow/models  
+wget http://storage.googleapis.com/cloud-iot-edge-pretrained-models/edgetpu_api.tar.gz   
+tar xvf edgetpu_api.tar.gz  
+ln -s ./python-tflite-source/edgetpu/test_data/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite /opt/frigate/config/forzen_inference_graph.pb  
+ln -s ./python-tflite-source/edgetpu/test_data/coco_labels.txt /opt/frigate/config/label_map.pbtext  
+  
+export PYTHONPATH=/usr/local/lib/python3.5/dist-packages/tensorflow/models/research:/usr/local/lib/python3.5/dist-packages/tensorflow/models/research/slim  
+cd /usr/local/lib/python3.5/dist-packages/tensorflow/models/research && sudo protoc object_detection/protos/*.proto --python_out=.  
+  
 A `config.yml` file must exist in the `config` directory. See example [here](config/config.yml).
 
 Access the mjpeg stream at `http://localhost:5000/<camera_name>` and the best person snapshot at `http://localhost:5000/<camera_name>/best_person.jpg`
