@@ -15,7 +15,7 @@ cameras:
       # values that begin with a "$" will be replaced with environment variable
       password: $RTSP_PASSWORD
       path: /cam/realmonitor?channel=1&subtype=2
-    mask: back-mask.bmp
+    # mask: back-mask.bmp # Uncomment for use
     regions:
       - size: 350
         x_offset: 0
