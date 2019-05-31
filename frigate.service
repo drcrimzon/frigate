@@ -1,0 +1,10 @@
+[Unit]
+Description=Frigate Object Detection Service
+
+[Service]
+Environment="PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.5/dist-packages/tensorflow/models/research:/usr/local/lib/python3.5/dist-packages/tensorflow/models/research/slim"
+Type=simple
+ExecStart=/opt/frigate_local/detect_objects.py
+
+[Install]
+WantedBy=multi-user.target
